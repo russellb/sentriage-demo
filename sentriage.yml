@@ -1,0 +1,5 @@
+monitored_repos:
+  - repo: russellb/vulnerable-demo-project
+    clone: true
+    context_refs:
+      - SECURITY.md

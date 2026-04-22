@@ -1,0 +1,34 @@
+name: Sentriage Sync Reports
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: russellb/sentriage
+          sparse-checkout: scripts
+          path: sentriage
+
+      - uses: actions/checkout@v4
+        with:
+          path: instance
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Sync reports
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ADVISORY_TOKEN: ${{ secrets.ADVISORY_TOKEN }}
+        working-directory: instance
+        run: python3 ../sentriage/scripts/sync-reports.py --config sentriage.yml --initial-label new-report
