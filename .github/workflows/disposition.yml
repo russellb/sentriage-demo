@@ -1,0 +1,25 @@
+name: Sentriage Disposition
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+
+jobs:
+  clear-needs-review:
+    if: >
+      github.event.action == 'labeled' && (
+        github.event.label.name == 'accepted' ||
+        github.event.label.name == 'rejected-duplicate' ||
+        github.event.label.name == 'rejected-invalid' ||
+        github.event.label.name == 'rejected-out-of-scope'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove needs-review label
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --remove-label "needs-review"
